@@ -11,12 +11,12 @@ load_dotenv()
 # Define the configuration for the graph
 # ************************************************
 
-openai_key = os.getenv("OPENAI_APIKEY")
+mistral_key = os.getenv("MISTRAL_API_KEY")
 
 graph_config = {
     "llm": {
-        "api_key": openai_key,
-        "model": "gpt-4o",
+        "api_key": mistral_key,
+        "model": "mistral/open-mistral-nemo",
     },
     "max_results": 2,
     "verbose": True,

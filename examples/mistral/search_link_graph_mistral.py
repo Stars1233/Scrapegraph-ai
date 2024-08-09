@@ -1,30 +1,34 @@
 """ 
 Basic example of scraping pipeline using SmartScraper
 """
-from scrapegraphai.graphs import SmartScraperGraph
+
+import os
+from dotenv import load_dotenv
+from scrapegraphai.graphs import SearchLinkGraph
 from scrapegraphai.utils import prettify_exec_info
+
+load_dotenv()
 # ************************************************
 # Define the configuration for the graph
 # ************************************************
 
+mistral_key = os.getenv("MISTRAL_API_KEY")
+
 graph_config = {
     "llm": {
-        "model": "ollama/llama3.1",
-        "temperature": 0,
-        "format": "json",  # Ollama needs the format to be specified explicitly
-        # "base_url": "http://localhost:11434", # set ollama URL arbitrarily
+        "api_key": mistral_key,
+        "model": "mistral/open-mistral-nemo",
     },
-  
     "verbose": True,
-    "headless": False
+    "headless": False,
 }
 
 # ************************************************
-# Create the SmartScraperGraph instance and run it
+# Create the SearchLinkGraph instance and run it
 # ************************************************
-smart_scraper_graph = SmartScraperGraph(
-    prompt="Find some information about what does the company do, the name and a contact email.",
-    source="https://scrapegraphai.com/",
+
+smart_scraper_graph = SearchLinkGraph(
+    source="https://sport.sky.it/nba?gr=www",
     config=graph_config
 )
 
