@@ -4,25 +4,19 @@ import importlib.metadata
 import json
 import logging
 import os
-import platform
 import threading
 import uuid
 from typing import Callable, Dict
 from urllib import request
+from pydantic import BaseModel, Field
 
-# Load version
 VERSION = importlib.metadata.version("scrapegraphai")
-STR_VERSION = ".".join([str(i) for i in VERSION])
-
-# 🚀 Your proxy service endpoint (instead of PostHog)
-PROXY_URL = "https://scrapegraph-proxy.onrender.com/capture/"
-
+TRACK_URL = "https://sgai-oss-tracing.onrender.com/v1/telemetry"
 TIMEOUT = 2
 DEFAULT_CONFIG_LOCATION = os.path.expanduser("~/.scrapegraphai.conf")
 
 logger = logging.getLogger(__name__)
 
-# Everything below remains mostly same
 def _load_config(config_location: str) -> configparser.ConfigParser:
     config = configparser.ConfigParser()
     try:
@@ -70,16 +64,6 @@ CALL_COUNTER = 0
 MAX_COUNT_SESSION = 1000
 
 
-BASE_PROPERTIES = {
-    "os_type": os.name,
-    "os_version": platform.platform(),
-    "python_version": f"{platform.python_version()}/{platform.python_implementation()}",
-    "distinct_id": g_anonymous_id,
-    "scrapegraphai_version": VERSION,
-    "telemetry_version": "0.0.4-proxy",
-}
-
-
 def disable_telemetry():
     global g_telemetry_enabled
     g_telemetry_enabled = False
@@ -95,44 +79,93 @@ def is_telemetry_enabled() -> bool:
     return False
 
 
-# ⭐ UPDATED FOR PROXY — send without API key
-def _send_event_json(event_json: dict):
+class TelemetryEvent(BaseModel):
+    user_prompt: str = Field(min_length=1, max_length=4096)
+    json_schema: str = Field(min_length=512, max_length=16384)
+    website_content: str = Field(min_length=1, max_length=65536)
+    llm_response: str = Field(min_length=1, max_length=32768)
+    llm_model: str = Field(min_length=1, max_length=256)
+    url: str = Field(min_length=1, max_length=2048)
+
+
+def _build_valid_telemetry_event(
+    prompt: str | None,
+    schema: dict | None,
+    content: str | None,
+    response: dict | str | None,
+    llm_model: str | None,
+    source: list[str] | None,
+) -> TelemetryEvent | None:
+    """Build and validate a TelemetryEvent. Returns None if validation fails."""
+    url: str | None = source[0] if isinstance(source, list) and source else None
+
+    json_schema: str | None = None
+    if isinstance(schema, dict):
+        try:
+            json_schema = json.dumps(schema)
+        except Exception:
+            json_schema = None
+    elif schema is not None:
+        json_schema = str(schema)
+
+    llm_response: str | None = None
+    if isinstance(response, dict):
+        try:
+            llm_response = json.dumps(response)
+        except Exception:
+            llm_response = None
+    elif response is not None:
+        llm_response = str(response)
+
+    try:
+        return TelemetryEvent(
+            user_prompt=prompt,
+            json_schema=json_schema,
+            website_content=content,
+            llm_response=llm_response,
+            llm_model=llm_model or "unknown",
+            url=url,
+        )
+    except Exception:
+        return None
+
+
+def _send_telemetry(event: TelemetryEvent):
+    """Send telemetry event to the tracing endpoint."""
     headers = {
         "Content-Type": "application/json",
-        "User-Agent": f"scrapegraphai/{STR_VERSION}",
+        "sgai-oss-version": VERSION,
     }
     try:
-        data = json.dumps(event_json).encode()
-        req = request.Request(PROXY_URL, data=data, headers=headers)
-
-        with request.urlopen(req, timeout=TIMEOUT) as f:
-            response_body = f.read()
-            if f.code != 200:
-                raise RuntimeError(response_body)
+        data = json.dumps(event.model_dump()).encode()
     except Exception as e:
-        logger.debug(f"Failed to send telemetry data to proxy: {e}")
-    else:
-        logger.debug(f"Telemetry payload forwarded to proxy: {data}")
+        logger.debug(f"Failed to serialize telemetry event: {e}")
+        return
 
-
-def send_event_json(event_json: dict):
-    if not g_telemetry_enabled:
-        raise RuntimeError("Telemetry tracking is disabled!")
     try:
-        th = threading.Thread(target=_send_event_json, args=(event_json,))
-        th.start()
+        req = request.Request(TRACK_URL, data=data, headers=headers)
+        with request.urlopen(req, timeout=TIMEOUT) as f:
+            f.read()
+            if f.code == 201:
+                logger.debug("Telemetry data sent successfully")
+            else:
+                logger.debug(f"Telemetry endpoint returned unexpected status: {f.code}")
     except Exception as e:
-        logger.debug(f"Telemetry dispatch thread failed: {e}")
+        logger.debug(f"Failed to send telemetry data: {e}")
+
+
+def _send_telemetry_threaded(event: TelemetryEvent):
+    """Send telemetry in a background daemon thread."""
+    try:
+        th = threading.Thread(target=_send_telemetry, args=(event,))
+        th.daemon = True
+        th.start()
+    except RuntimeError as e:
+        logger.debug(f"Failed to send telemetry data in a thread: {e}")
 
 
 def log_event(event: str, properties: Dict[str, any]):
-    if is_telemetry_enabled():
-        payload = {
-            "event": event,
-            "distinct_id": g_anonymous_id,
-            "properties": {**BASE_PROPERTIES, **properties},
-        }
-        send_event_json(payload)
+    pass
 
 
 def log_graph_execution(
@@ -150,23 +183,25 @@ def log_graph_execution(
     exception: str = None,
     total_tokens: int = None,
 ):
-    props = {
-        "graph_name": graph_name,
-        "source": source,
-        "prompt": prompt,
-        "schema": schema,
-        "llm_model": llm_model,
-        "embedder_model": embedder_model,
-        "source_type": source_type,
-        "content": content,
-        "response": response,
-        "execution_time": execution_time,
-        "error_node": error_node,
-        "exception": exception,
-        "total_tokens": total_tokens,
-        "type": "community-library",
-    }
-    log_event("graph_execution", props)
+    if not is_telemetry_enabled():
+        return
+
+    if error_node is not None:
+        return
+
+    event = _build_valid_telemetry_event(
+        prompt=prompt,
+        schema=schema,
+        content=content,
+        response=response,
+        llm_model=llm_model,
+        source=source,
+    )
+    if event is None:
+        logger.debug("Telemetry skipped: event validation failed")
+        return
+
+    _send_telemetry_threaded(event)
 
 
 def capture_function_usage(call_fn: Callable) -> Callable:
