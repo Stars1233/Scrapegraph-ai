@@ -8,8 +8,6 @@ import threading
 import uuid
 from typing import Callable, Dict
 from urllib import request
-from pydantic import BaseModel, Field
-
 VERSION = importlib.metadata.version("scrapegraphai")
 TRACK_URL = "https://sgai-oss-tracing.onrender.com/v1/telemetry"
 TIMEOUT = 2
@@ -79,88 +77,75 @@ def is_telemetry_enabled() -> bool:
     return False
 
 
-class TelemetryEvent(BaseModel):
-    user_prompt: str = Field(min_length=1, max_length=4096)
-    json_schema: str = Field(min_length=512, max_length=16384)
-    website_content: str = Field(min_length=1, max_length=65536)
-    llm_response: str = Field(min_length=1, max_length=32768)
-    llm_model: str = Field(min_length=1, max_length=256)
-    url: str = Field(min_length=1, max_length=2048)
-
-
-def _build_valid_telemetry_event(
+def _build_telemetry_payload(
     prompt: str | None,
     schema: dict | None,
     content: str | None,
     response: dict | str | None,
     llm_model: str | None,
     source: list[str] | None,
-) -> TelemetryEvent | None:
-    """Build and validate a TelemetryEvent. Returns None if validation fails."""
-    url: str | None = source[0] if isinstance(source, list) and source else None
+) -> dict | None:
+    """Build telemetry payload dict. Returns None if required fields are missing."""
+    url = source[0] if isinstance(source, list) and source else None
 
     if isinstance(content, list):
         content = "\n".join(str(c) for c in content)
 
-    json_schema: str | None = None
+    json_schema = None
     if isinstance(schema, dict):
         try:
             json_schema = json.dumps(schema)
-        except Exception:
+        except (TypeError, ValueError):
             json_schema = None
     elif schema is not None:
         json_schema = str(schema)
 
-    llm_response: str | None = None
+    llm_response = None
     if isinstance(response, dict):
         try:
             llm_response = json.dumps(response)
-        except Exception:
+        except (TypeError, ValueError):
             llm_response = None
     elif response is not None:
         llm_response = str(response)
 
-    try:
-        return TelemetryEvent(
-            user_prompt=prompt,
-            json_schema=json_schema,
-            website_content=content,
-            llm_response=llm_response,
-            llm_model=llm_model or "unknown",
-            url=url,
-        )
-    except Exception:
+    if not all([prompt, json_schema, content, llm_response, url]):
         return None
 
+    return {
+        "user_prompt": prompt,
+        "json_schema": json_schema,
+        "website_content": content,
+        "llm_response": llm_response,
+        "llm_model": llm_model or "unknown",
+        "url": url,
+    }
 
-def _send_telemetry(event: TelemetryEvent):
-    """Send telemetry event to the tracing endpoint."""
+
+def _send_telemetry(payload: dict):
+    """Send telemetry payload to the tracing endpoint."""
     headers = {
         "Content-Type": "application/json",
         "sgai-oss-version": VERSION,
     }
     try:
-        data = json.dumps(event.model_dump()).encode()
-    except Exception as e:
-        logger.debug(f"Failed to serialize telemetry event: {e}")
+        data = json.dumps(payload).encode()
+    except (TypeError, ValueError) as e:
+        logger.debug(f"Failed to serialize telemetry payload: {e}")
         return
 
     try:
         req = request.Request(TRACK_URL, data=data, headers=headers)
         with request.urlopen(req, timeout=TIMEOUT) as f:
             f.read()
-            if f.code == 201:
-                logger.debug("Telemetry data sent successfully")
-            else:
-                logger.debug(f"Telemetry endpoint returned unexpected status: {f.code}")
     except Exception as e:
         logger.debug(f"Failed to send telemetry data: {e}")
 
 
-def _send_telemetry_threaded(event: TelemetryEvent):
+def _send_telemetry_threaded(payload: dict):
     """Send telemetry in a background daemon thread."""
     try:
-        th = threading.Thread(target=_send_telemetry, args=(event,))
+        th = threading.Thread(target=_send_telemetry, args=(payload,))
         th.daemon = True
         th.start()
     except RuntimeError as e:
@@ -192,7 +177,7 @@ def log_graph_execution(
     if error_node is not None:
         return
 
-    event = _build_valid_telemetry_event(
+    payload = _build_telemetry_payload(
         prompt=prompt,
         schema=schema,
         content=content,
@@ -200,11 +185,11 @@ def log_graph_execution(
         llm_model=llm_model,
         source=source,
     )
-    if event is None:
-        logger.debug("Telemetry skipped: event validation failed")
+    if payload is None:
+        logger.debug("Telemetry skipped: missing required fields")
         return
 
-    _send_telemetry_threaded(event)
+    _send_telemetry_threaded(payload)
 
 
 def capture_function_usage(call_fn: Callable) -> Callable:
