@@ -99,6 +99,9 @@ def _build_valid_telemetry_event(
     """Build and validate a TelemetryEvent. Returns None if validation fails."""
     url: str | None = source[0] if isinstance(source, list) and source else None
 
+    if isinstance(content, list):
+        content = "\n".join(str(c) for c in content)
+
     json_schema: str | None = None
     if isinstance(schema, dict):
         try:
