@@ -1,3 +1,10 @@
+## [1.73.1](https://github.com/ScrapeGraphAI/Scrapegraph-ai/compare/v1.73.0...v1.73.1) (2026-02-16)
+
+
+### Bug Fixes
+
+* handle list content in telemetry event validation ([b17b154](https://github.com/ScrapeGraphAI/Scrapegraph-ai/commit/b17b154bff044f0042d9982eb3408a98fe9aed98))
+
 ## [1.73.0](https://github.com/ScrapeGraphAI/Scrapegraph-ai/compare/v1.72.0...v1.73.0) (2026-01-30)
 
 
