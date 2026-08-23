@@ -1,3 +1,10 @@
+## [2.2.2](https://github.com/ScrapeGraphAI/Scrapegraph-ai/compare/v2.2.1...v2.2.2) (2026-08-23)
+
+
+### Bug Fixes
+
+* **fetch:** surface HTTP errors and missing content instead of answering NA ([adc92f7](https://github.com/ScrapeGraphAI/Scrapegraph-ai/commit/adc92f7eff9aa39d70e3848c6867328c3ba2ba2d)), closes [#1102](https://github.com/ScrapeGraphAI/Scrapegraph-ai/issues/1102) [#1102](https://github.com/ScrapeGraphAI/Scrapegraph-ai/issues/1102)
+
 ## [2.2.1](https://github.com/ScrapeGraphAI/Scrapegraph-ai/compare/v2.2.0...v2.2.1) (2026-08-21)
 
 
