@@ -42,6 +42,7 @@ jobs:
           tests/test_batch_api.py
           tests/test_csv_scraper_multi_graph.py
           tests/test_depth_search_graph.py
+          tests/test_error_page_detection.py
           tests/test_json_scraper_graph.py
           tests/test_minimax_models.py
           tests/test_scrape_do.py

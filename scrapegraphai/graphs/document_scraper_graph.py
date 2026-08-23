@@ -76,6 +76,7 @@ class DocumentScraperGraph(AbstractGraph):
                 "parse_html": False,
                 "chunk_size": self.model_token,
                 "llm_model": self.llm_model,
+                "schema": self.schema,
             },
         )
         generate_answer_node = GenerateAnswerNode(

@@ -10,6 +10,32 @@ from ..utils import Proxy, dynamic_import, get_logger, parse_or_search_proxy
 logger = get_logger("web-loader")
 
 
+def _warn_on_error_status(response: Any, url: str) -> None:
+    """Log a warning when a navigation returned an HTTP error status.
+
+    Playwright's ``page.goto()`` returns the main-frame ``Response``, but the
+    scrapers only keep ``page.content()``. Without this check an error page
+    (404, 403, 500, a captcha wall, a login redirect) is indistinguishable
+    from the intended document once it reaches the LLM, which then produces a
+    confidently wrong answer with no signal that anything went wrong.
+
+    This mirrors the behaviour of the ``use_soup=True`` path in ``FetchNode``:
+    it warns rather than raising, so scraping error pages on purpose keeps
+    working.
+
+    Args:
+        response: The ``Response`` returned by ``page.goto()``; may be ``None``
+            (for example on a same-document navigation) or lack a usable status.
+        url: The URL that was requested, used in the warning message.
+    """
+    status = getattr(response, "status", None)
+    if isinstance(status, int) and status >= 400:
+        logger.warning(
+            f"Received HTTP {status} for {url}; the scraped content is likely "
+            "an error page, not the intended document."
+        )
+
+
 class ChromiumLoader:
     """Scrapes HTML pages from URLs using a (headless) instance of the
     Chromium web driver with proxy protection.
@@ -251,7 +277,8 @@ class ChromiumLoader:
                     context = await browser.new_context()
                     await Malenia.apply_stealth(context)
                     page = await context.new_page()
-                    await page.goto(url, wait_until="domcontentloaded")
+                    response = await page.goto(url, wait_until="domcontentloaded")
+                    _warn_on_error_status(response, url)
                     await page.wait_for_load_state(self.load_state)
 
                     previous_height = None
@@ -364,7 +391,8 @@ class ChromiumLoader:
                     )
                     await Malenia.apply_stealth(context)
                     page = await context.new_page()
-                    await page.goto(url, wait_until="domcontentloaded")
+                    response = await page.goto(url, wait_until="domcontentloaded")
+                    _warn_on_error_status(response, url)
                     await page.wait_for_load_state(self.load_state)
                     results = await page.content()
                     logger.info("Content scraped")
@@ -421,7 +449,8 @@ class ChromiumLoader:
                         storage_state=self.storage_state
                     )
                     page = await context.new_page()
-                    await page.goto(url, wait_until="networkidle")
+                    response = await page.goto(url, wait_until="networkidle")
+                    _warn_on_error_status(response, url)
                     results = await page.content()
                     logger.info("Content scraped after JavaScript rendering")
                     return results

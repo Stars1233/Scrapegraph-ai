@@ -93,7 +93,11 @@ class CodeGeneratorGraph(AbstractGraph):
         parse_node = ParseNode(
             input="doc",
             output=["parsed_doc"],
-            node_config={"llm_model": self.llm_model, "chunk_size": self.model_token},
+            node_config={
+                "llm_model": self.llm_model,
+                "chunk_size": self.model_token,
+                "schema": self.schema,
+            },
         )
 
         generate_validation_answer_node = GenerateAnswerNode(
