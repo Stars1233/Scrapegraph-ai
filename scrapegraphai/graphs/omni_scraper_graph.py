@@ -83,6 +83,7 @@ class OmniScraperGraph(AbstractGraph):
                 "chunk_size": self.model_token,
                 "parse_urls": True,
                 "llm_model": self.llm_model,
+                "schema": self.schema,
             },
         )
 

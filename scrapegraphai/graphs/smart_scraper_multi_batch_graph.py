@@ -5,9 +5,8 @@ A scraping pipeline that uses the OpenAI Batch API for LLM calls,
 providing 50% cost savings compared to real-time API calls.
 """
 
-import asyncio
 from copy import deepcopy
-from typing import Dict, List, Optional, Type
+from typing import List, Optional, Type
 
 from pydantic import BaseModel
 
@@ -17,7 +16,6 @@ from ..nodes.merge_answers_node import MergeAnswersNode
 from ..utils.copy import safe_deepcopy
 from .abstract_graph import AbstractGraph
 from .base_graph import BaseGraph
-from .smart_scraper_graph import SmartScraperGraph
 
 
 class _FetchParseOnlyGraph(AbstractGraph):
@@ -57,6 +55,7 @@ class _FetchParseOnlyGraph(AbstractGraph):
             node_config={
                 "llm_model": self.llm_model,
                 "chunk_size": self.model_token,
+                "schema": self.schema,
             },
         )
 

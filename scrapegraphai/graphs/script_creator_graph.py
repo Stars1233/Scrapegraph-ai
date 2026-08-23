@@ -82,6 +82,7 @@ class ScriptCreatorGraph(AbstractGraph):
                 "chunk_size": self.model_token,
                 "parse_html": False,
                 "llm_model": self.llm_model,
+                "schema": self.schema,
             },
         )
 
