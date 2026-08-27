@@ -162,6 +162,12 @@ Ricordati di avere [Ollama](https://ollama.com/) installato e di scaricare i mod
 La documentazione di ScrapeGraphAI è disponibile [qui](https://scrapegraph-ai.readthedocs.io/en/latest/).
 Consulta anche il Docusaurus [qui](https://docs-oss.scrapegraphai.com/).
 
+## 🏆 Sponsor
+
+[![NodeMaven](assets/nodemaven-banner.png)](https://go.nodemaven.com/scrapegraphyai)
+
+Codici per gli utenti ScrapeGraphAI: `SCRAPEGRAPH35` (35% su proxy mobile e residenziali), `SCRAPEGRAPH40` (40% su proxy ISP / statici).
+
 ## 🤝 Vuoi contribuire?
 
 Sentiti libero di contribuire e unisciti al nostro server Discord per discutere con noi su cosa migliorare e darci suggerimenti!

@@ -159,6 +159,12 @@ Yerel modelleri kullanmak istiyorsanız, [Ollama](https://ollama.com/) kurulu ol
 
 ScrapeGraphAI dokümantasyonuna [buradan](https://docs.scrapegraphai.com/introduction) ulaşabilirsiniz.
 
+## 🏆 Sponsorlar
+
+[![NodeMaven](assets/nodemaven-banner.png)](https://go.nodemaven.com/scrapegraphyai)
+
+ScrapeGraphAI kullanıcıları için kodlar: `SCRAPEGRAPH35` (mobil ve residential proxy'lerde %35 indirim), `SCRAPEGRAPH40` (ISP / static proxy'lerde %40 indirim).
+
 ## 🤝 Katkıda Bulunun
 
 Projeye katkıda bulunmaktan çekinmeyin ve geliştirmeleri tartışmak ve bize önerilerde bulunmak için Discord sunucumuza katılın!

@@ -160,6 +160,12 @@ N'oubliez pas d'installer [Ollama](https://ollama.com/) et de télécharger les 
 
 La documentation pour ScrapeGraphAI se trouve [ici](https://docs.scrapegraphai.com/introduction).
 
+## 🏆 Sponsors
+
+[![NodeMaven](assets/nodemaven-banner.png)](https://go.nodemaven.com/scrapegraphyai)
+
+Codes pour les utilisateurs de ScrapeGraphAI : `SCRAPEGRAPH35` (35 % sur les proxies mobile et résidentiels), `SCRAPEGRAPH40` (40 % sur les proxies ISP / statiques).
+
 ## 🤝 Contribuer
 
 N'hésitez pas à contribuer et à rejoindre notre serveur Discord pour discuter avec nous des améliorations et nous donner des suggestions !

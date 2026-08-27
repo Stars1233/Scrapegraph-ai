@@ -158,6 +158,12 @@ print(json.dumps(result, indent=4))
 
 Документация для ScrapeGraphAI доступна [здесь](https://docs.scrapegraphai.com/introduction).
 
+## 🏆 Спонсоры
+
+[![NodeMaven](assets/nodemaven-banner.png)](https://go.nodemaven.com/scrapegraphyai)
+
+Коды для пользователей ScrapeGraphAI: `SCRAPEGRAPH35` (скидка 35% на mobile и residential-прокси), `SCRAPEGRAPH40` (скидка 40% на ISP / static-прокси).
+
 ## 🤝 Участие
 
 Не стесняйтесь вносить свой вклад и присоединяйтесь к нашему серверу Discord, чтобы обсудить с нами улучшения и дать нам предложения!

@@ -158,6 +158,12 @@ OpenAI, Groq, Azure, Gemini와 같은 API를 통해 다양한 LLM을 사용할 �
 
 ScrapeGraphAI 관련 문서는 [여기](https://docs.scrapegraphai.com/introduction)에서 확인하실 수 있습니다.
 
+## 🏆 스폰서
+
+[![NodeMaven](assets/nodemaven-banner.png)](https://go.nodemaven.com/scrapegraphyai)
+
+ScrapeGraphAI 사용자 코드: `SCRAPEGRAPH35` (모바일 및 주거용 프록시 35% 할인), `SCRAPEGRAPH40` (ISP / 고정 프록시 40% 할인).
+
 ## 🤝 기여
 
 자유롭게 기여하고 Discord 서버에 참여하여 개선 사항을 논의하고 제안해 주세요!
