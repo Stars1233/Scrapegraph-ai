@@ -165,6 +165,12 @@ Recuerda tener [Ollama](https://ollama.com/) instalado y descargar los modelos c
 
 La documentación de ScrapeGraphAI está disponible [aquí](https://docs.scrapegraphai.com/introduction).
 
+## 🏆 Patrocinadores
+
+[![NodeMaven](assets/nodemaven-banner.png)](https://go.nodemaven.com/scrapegraphyai)
+
+Códigos para usuarios de ScrapeGraphAI: `SCRAPEGRAPH35` (35% en proxies móviles y residenciales), `SCRAPEGRAPH40` (40% en proxies ISP / estáticos).
+
 ## 🤝 Contribuciones
 
 ¡Siéntete libre de contribuir y únete a nuestro servidor de Discord para discutir mejoras y compartir sugerencias!

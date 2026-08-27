@@ -158,6 +158,12 @@ print(json.dumps(result, indent=4))
 
 ScrapeGraphAIのドキュメントは[こちら](https://docs.scrapegraphai.com/introduction)で見ることができます。
 
+## 🏆 スポンサー
+
+[![NodeMaven](assets/nodemaven-banner.png)](https://go.nodemaven.com/scrapegraphyai)
+
+ScrapeGraphAI ユーザー向けコード：`SCRAPEGRAPH35`（モバイル / 住宅用プロキシ 35% オフ）、`SCRAPEGRAPH40`（ISP / 静的プロキシ 40% オフ）。
+
 ## 🤝 貢献
 
 貢献を歓迎し、Discordサーバーで改善や提案について話し合います！

@@ -158,6 +158,12 @@ print(json.dumps(result, indent=4))
 
 ScrapeGraphAI 的文档可以在[这里](https://docs.scrapegraphai.com/introduction)找到。
 
+## 🏆 赞助商
+
+[![NodeMaven](assets/nodemaven-banner.png)](https://go.nodemaven.com/scrapegraphyai)
+
+ScrapeGraphAI 用户优惠码：`SCRAPEGRAPH35`（移动和住宅代理 35% 折扣），`SCRAPEGRAPH40`（ISP / 静态代理 40% 折扣）。
+
 ## 🤝 贡献
 
 欢迎贡献并加入我们的 Discord 服务器与我们讨论改进和提出建议！
